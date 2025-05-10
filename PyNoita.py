@@ -21,7 +21,7 @@ current version: beta
 
 """
 
-#total monsters drank during creation of the game: 1
+#total monsters drank during creation of the game: 2
 
 import random
 import math
