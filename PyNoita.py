@@ -21,7 +21,12 @@ current version: beta
 
 """
 
-#total monsters drank during creation of the game: 2
+# ^^ legal bullshit
+
+# total monsters drank during creation of the game: 2
+# i have a feeling they are going to be a lot more
+
+
 
 import random
 import math
