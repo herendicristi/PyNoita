@@ -23,7 +23,7 @@ current version: beta
 
 # ^^ legal bullshit
 
-# total monsters drank during creation of the game: 2
+# total monsters drank during creation of the game: 3
 # i have a feeling they are going to be a lot more
 
 
@@ -31,8 +31,27 @@ current version: beta
 import random
 import math
 import time
+import pickle
+import os
+
+# Define the base directory for saving and loading files
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Update file paths for achievements and tutorial save
+achievements_file = os.path.join(base_dir, "achievements.pickle")
+tutorial_save_file = os.path.join(base_dir, "tutorialsave.pickle")
 
 # Global variables
+
+# Load achievements
+try:
+    with open(achievements_file, "rb") as file:
+        acheivements = pickle.load(file)
+except FileNotFoundError:
+    acheivements = {
+        "First Steps": False, "shadow": False,
+        "Main Menu Easter Egg": False, "shadow": True
+    }
 
 # Luck variables
 rawGlobalLuck = 1.00  # Base luck value
@@ -46,7 +65,7 @@ playerState = "alive"  # Player state (alive or dead)
 
 # World variables
 currentWorld = 0  # Current world index
-currentWorldName = ""  # Name of the current world
+currentWorldName = ""  # Name of the current world"
 currentLevel = 0  # Current level index
 currentLevelName = ""  # Name of the current level
 
@@ -126,6 +145,14 @@ def pickWorldName():
     return f"{name1} {name2} {name3} {name4}"
 # will add more names later
 
+def saveAchievement(achievement_name):
+    global acheivements
+    try:
+        acheivements[achievement_name] = True
+        with open(achievements_file, "wb") as file:
+            pickle.dump(acheivements, file)
+    except (FileNotFoundError, EOFError):
+        print(f"Error saving achievement: {achievement_name}. File not found or corrupted.")
 
 # end of global functions
 
@@ -173,6 +200,8 @@ def tutorialFight(currentEnemy, currentEnemyName, tutorialWand):
             global playerState
             playerState = "dead"
             break
+
+tutorialComplete = False
 
 def runTutorial():
     print("Welcome to PyNoita! This is a simple implementation of the game Noita.")
@@ -256,7 +285,7 @@ def runTutorial():
     print("projectile spells are the most common, and they are the ones that deal damage")
     print("support spells are the ones that alter other spells, and they are the ones that create chains")#
     time.sleep(2)
-    print("each enemy has its own stats, they do not have a wand, but they have their own damage and health")
+    print("each enemy has its own stats, they do not have a wand but they have their own damage and health")
     print("the enemy damage is the damage the enemy does, and the enemy health is the health of the enemy")
     print("you can also defend, which reduces the damage you take by half")
     print("if the enemy health reaches 0, the enemy is defeated")
@@ -274,27 +303,114 @@ def runTutorial():
             tutorialFight(currentEnemy, currentEnemyName, tutorialWand)
         elif retry.lower() == "n":
             print("Exiting tutorial...")
-          
+            tutorialComplete = True
+            print("You have gained the \"First Steps\" achievement!")
 
+                
+        else:
+            print("Invalid input. Exiting tutorial...")
+            tutorialComplete = True
+            print("You have gained the \"First Steps\" achievement!")
     
     if currentEnemyState == "dead":
         print("You have defeated the " + currentEnemyName + "!")
     #placeholder
+        print("basic tutorial complete!")
+        print("this tutorial was intentionally short, so you can find out more about the game yourself")
+        print("as of version \'beta\', there is not an official tutorial other than this one")
+        print("the game is still in development, so there will be more content added in the future")
+        print("if you have any suggestions, please let me know!")
+        tutorialComplete = True
+        print("You have gained the \"First Steps\" achievement!")
+
+skipTutorial = False
+
 
 # Main logic
-tutorialOption = input("Do you want to play in tutorial mode? (y/n): ")
-if tutorialOption.lower() == "y":
-    runTutorial()
-elif tutorialOption.lower() == "n":
-    print("Skipping tutorial...")
+try:
+    with open(tutorial_save_file, "rb") as file:
+        tutorialCompleteLoaded = pickle.load(file)
+except (FileNotFoundError, EOFError):  # Handle missing or corrupted file
+    tutorialCompleteLoaded = False
+
+tutorialComplete = tutorialCompleteLoaded
+
+if tutorialComplete == False:
+    tutorialOption = input("Do you want to play in tutorial mode? (y/n): ")
+    if tutorialOption.lower() == "y":
+        runTutorial()
+        skipTutorial = False
+    elif tutorialOption.lower() == "n":
+        print("Skipping tutorial...")
+        tutorialComplete = True
+        skipTutorial = True
+    else:
+        print("Invalid input. Defaulting to tutorial mode.")
+        runTutorial()
+        skipTutorial = False
 else:
-    print("Invalid input. Defaulting to tutorial mode.")
-    runTutorial()
+    pass
+
+# some redundant code, but it helps with readability
+
+if tutorialComplete == True and skipTutorial == False:
+    saveAchievement("First Steps")
 
 
-# chisel out the tutorial
+
+#main menu
+print("Welcome to PyNoita!")
+time.sleep(1)
+print("would you like to...")
+mainMenuOption = input("1. Start a new game\n2. Load a game\n3. Settings\n4. Exit\n")
+mainMenuValid = False
+
+while mainMenuValid == False:
+    if mainMenuOption == "1":
+        print("Starting a new game...")
+        time.sleep(1)
+        mainMenuValid = True
+        # start a new game
+    elif mainMenuOption == "2":
+        print("Loading game...")
+        time.sleep(1)
+        mainMenuValid = True
+        # load a game
+    elif mainMenuOption == "3":
+        print("Settings")
+        time.sleep(1)
+        mainMenuValid = True
+        # settings menu
+    elif mainMenuOption == "4":
+        print("Exiting game...")
+        time.sleep(1)
+        mainMenuValid = True
+        exit()
+    elif mainMenuOption == "easter egg":
+        print("You found an easter egg!")
+        saveAchievement("Main Menu Easter Egg")
+        time.sleep(1)
+        mainMenuValid = True
+        # this game may have alot of easter eggs...
+    else:
+        mainMenuValid = False
+        print("Invalid input. Please choose 1, 2, 3, or 4.")
+        mainMenuOption = input("1. Start a new game\n2. Load a game\n3. Settings\n4. Exit\n")
+
+
+
+# main game variables
+
+
+
+# main game loop
+
+
+
+
+# chisel out the tutorial - check
 # add more content to the global variables, enemys, wands, spells, etc.
-# start main game loop
+# start main game loop - check
 
 # not sure how to implement the main game loop yet, will need to think about it
 # add a way to save and load the game, using file handling
@@ -305,7 +421,3 @@ else:
 # a good idea would be to have settings for the game, mainly just
 # the speed of the text, something like time.sleep(gameSpeed)
 # and the gameSpeed variable would be set to 1 by default, and the player could change it in the settings
-
-# Gduskit. easter egg
-# gduskit, if youre reading this, tell me if u want to help me with the game
-# co-creator maybe?
