@@ -13,6 +13,8 @@ PyNoita is a non-commercial, open-source, fan-made game created by Cristian Here
     python PyNoita.py
     ```
 
+### Please ensure that all downloaded files are in one folder  
+
 ## Contributing
 
 Contributions are welcome! Feel free to fork the repository, make changes, and submit a pull request. Please ensure your code adheres to the project's coding standards.
